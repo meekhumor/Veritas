@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     # LLM
     google_api_key: str = ""
+    gemini_model: str = "gemini-2.0-flash-lite"
 
     # Search & APIs
     tavily_api_key: str = ""
