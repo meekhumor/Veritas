@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are a societal impact assessment specialist for a misinformation detection system.
 
-Given a claim and the evidence gathered about it, assess the potential societal impact across 5 dimensions.
+Given a claim and the evidence gathered about it, assess the potential societal impact across 6 dimensions.
 Score each dimension from 0 to 100.
 
 Dimensions:
@@ -33,6 +33,7 @@ Dimensions:
 3. **Emotional Charge** — How emotionally provocative is the claim? (fear/outrage = high, neutral = low)
 4. **Actionability** — Could people take harmful action based on this? (medical advice = high, opinion = low)
 5. **Vulnerable Populations** — Does this target vulnerable groups? (children/elderly/sick = high)
+6. **Amplification Risk** — How likely is this to go viral on social media? (already trending = high, niche topic = low)
 
 Respond in JSON:
 {
@@ -41,10 +42,11 @@ Respond in JSON:
     "emotional_charge": {"score": 0-100, "explanation": "brief reason"},
     "actionability": {"score": 0-100, "explanation": "brief reason"},
     "vulnerable_populations": {"score": 0-100, "explanation": "brief reason"},
+    "amplification_risk": {"score": 0-100, "explanation": "brief reason"},
     "overall": 0-100
 }
 
-The overall score should be a weighted average emphasizing actionability and vulnerable populations.
+The overall score should be a weighted average emphasizing actionability, vulnerable populations, and amplification risk.
 """
 
 
@@ -94,6 +96,7 @@ async def impact_assessor(state: InvestigationState) -> dict:
             emotional_charge=_parse_dim("emotional_charge"),
             actionability=_parse_dim("actionability"),
             vulnerable_populations=_parse_dim("vulnerable_populations"),
+            amplification_risk=_parse_dim("amplification_risk"),
         )
     except (json.JSONDecodeError, Exception) as e:
         logger.warning(f"Impact Assessor: failed to parse response — {e}")
@@ -105,6 +108,7 @@ async def impact_assessor(state: InvestigationState) -> dict:
             emotional_charge=default_dim,
             actionability=default_dim,
             vulnerable_populations=default_dim,
+            amplification_risk=default_dim,
         )
 
     trail_entry = f"[{datetime.utcnow().isoformat()}] Impact Assessor: Overall impact score = {impact.overall}"

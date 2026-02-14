@@ -11,3 +11,4 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+hackx/

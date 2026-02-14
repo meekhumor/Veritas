@@ -98,6 +98,9 @@ class ImpactScore(BaseModel):
     emotional_charge: ImpactDimension
     actionability: ImpactDimension
     vulnerable_populations: ImpactDimension
+    amplification_risk: ImpactDimension = ImpactDimension(
+        score=50.0, explanation="Not assessed"
+    )
 
 
 # ── Cross-Reference Result ─────────────────────────────────────────────────

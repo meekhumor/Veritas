@@ -83,8 +83,10 @@ async def web_search(state: InvestigationState) -> dict:
 
 # ── Sub-agent: News Scanner (Media Cloud) ──────────────────────────────────
 
+US_NATIONAL_COLLECTION = 34412234  # Media Cloud's US national news collection
+
 async def news_scanner(state: InvestigationState) -> dict:
-    """Scan news sources using Media Cloud API."""
+    """Scan news sources using Media Cloud Python library (v4+)."""
     settings = get_settings()
     query = state.refined_query or state.query
     evidence: list[EvidenceItem] = []
@@ -102,33 +104,42 @@ async def news_scanner(state: InvestigationState) -> dict:
         }
 
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(
-                "https://api.mediacloud.org/api/v2/stories_public/list",
-                params={
-                    "q": query,
-                    "rows": 5,
-                    "sort": "publish_date",
-                    "key": settings.mediacloud_api_key,
-                },
-            )
-            response.raise_for_status()
-            stories = response.json()
+        import mediacloud.api
+        import asyncio
+        from datetime import timedelta
 
-            for story in stories:
-                evidence.append(
-                    EvidenceItem(
-                        investigation_id=state.investigation_id,
-                        source_type=EvidenceType.NEWS,
-                        source_name=story.get("media_name", "news"),
-                        source_url=story.get("url"),
-                        title=story.get("title", ""),
-                        content=story.get("title", ""),  # Media Cloud doesn't return full text
-                        credibility_score=0.6,
-                        published_date=story.get("publish_date"),
-                        raw_data=story,
-                    )
+        mc_search = mediacloud.api.SearchApi(settings.mediacloud_api_key)
+
+        # Search for stories from the last 30 days (library expects date, not datetime)
+        end_date = datetime.utcnow().date()
+        start_date = (datetime.utcnow() - timedelta(days=30)).date()
+
+        # Run the synchronous library call in a thread pool
+        loop = asyncio.get_event_loop()
+        stories, _ = await loop.run_in_executor(
+            None,
+            lambda: mc_search.story_list(
+                query,
+                start_date=start_date,
+                end_date=end_date,
+                collection_ids=[US_NATIONAL_COLLECTION],
+            ),
+        )
+
+        for story in stories[:5]:  # Limit to 5 results
+            evidence.append(
+                EvidenceItem(
+                    investigation_id=state.investigation_id,
+                    source_type=EvidenceType.NEWS,
+                    source_name=story.get("media_name", "news"),
+                    source_url=story.get("url", ""),
+                    title=story.get("title", ""),
+                    content=story.get("title", ""),
+                    credibility_score=0.6,
+                    published_date=story.get("publish_date"),
+                    raw_data=story,
                 )
+            )
 
         trail = f"[{datetime.utcnow().isoformat()}] News Scanner: Found {len(evidence)} articles via Media Cloud"
     except Exception as e:

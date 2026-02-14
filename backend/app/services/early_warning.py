@@ -83,8 +83,8 @@ def cluster_by_similarity(investigations: list[dict], threshold: float = 0.6) ->
 
 def detect_spikes(
     clusters: list[list[dict]],
-    min_count: int = 3,
-    min_avg_impact: float = 60.0,
+    min_count: int = 2,
+    min_avg_impact: float = 40.0,
 ) -> list[dict]:
     """Detect spikes: clusters with ≥min_count items and avg impact > min_avg_impact."""
     spikes = []
@@ -149,7 +149,7 @@ async def run_spike_detection():
         # Fetch recent investigations
         investigations = await get_recent_investigations(hours=2)
 
-        if len(investigations) < 3:
+        if len(investigations) < 2:
             logger.debug(f"Early Warning: only {len(investigations)} recent investigations, skipping")
             return
 

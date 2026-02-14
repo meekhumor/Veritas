@@ -6,6 +6,7 @@ const dimensions = [
     { key: 'emotional_charge', label: 'Emotional Charge' },
     { key: 'actionability', label: 'Actionability' },
     { key: 'vulnerable_populations', label: 'Vulnerable Populations' },
+    { key: 'amplification_risk', label: 'Amplification Risk' },
 ]
 
 function getBarColor(score) {

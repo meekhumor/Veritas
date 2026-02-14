@@ -9,6 +9,11 @@ export const useThreatsStore = create((set, get) => ({
     sseConnection: null,
     realtimeAlerts: [], // new threats arriving via SSE
 
+    // ── clusters state ──
+    clusters: [],
+    clustersLoading: false,
+    totalInvestigations: 0,
+
     // ── actions ──
     fetchThreats: async () => {
         set({ loading: true, error: null })
@@ -17,6 +22,21 @@ export const useThreatsStore = create((set, get) => ({
             set({ threats: data.threats || [], loading: false })
         } catch (err) {
             set({ error: err.message, loading: false })
+        }
+    },
+
+    fetchClusters: async () => {
+        set({ clustersLoading: true })
+        try {
+            const data = await api.get('/threats/clusters')
+            set({
+                clusters: data.clusters || [],
+                totalInvestigations: data.total_investigations || 0,
+                clustersLoading: false,
+            })
+        } catch (err) {
+            // Clusters are non-critical, don't set error
+            set({ clustersLoading: false })
         }
     },
 
@@ -31,8 +51,8 @@ export const useThreatsStore = create((set, get) => ({
                     // Also update threats list if it's a new one
                     threats: state.threats.some((t) => t.id === data.id)
                         ? state.threats.map((t) =>
-                              t.id === data.id ? { ...t, ...data } : t
-                          )
+                            t.id === data.id ? { ...t, ...data } : t
+                        )
                         : [data, ...state.threats],
                 }))
             },
