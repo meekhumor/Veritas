@@ -84,15 +84,15 @@ export default function LandingPage() {
                     sources.
                 </p>
                 <div className="flex items-center justify-center gap-4">
-                    <Link to="/signup">
+                    <Link to="/investigate">
                         <Button size="lg" className="text-base">
                             Start Investigating
                             <ArrowRight className="h-4 w-4 ml-2" />
                         </Button>
                     </Link>
-                    <Link to="/login">
+                    <Link to="/feed">
                         <Button variant="outline" size="lg" className="text-base">
-                            Sign In
+                            Browse Feed
                         </Button>
                     </Link>
                 </div>
@@ -179,9 +179,9 @@ export default function LandingPage() {
                         Join Veritas to investigate claims, contribute to the public feed,
                         and receive early warnings about emerging misinformation threats.
                     </p>
-                    <Link to="/signup">
+                    <Link to="/investigate">
                         <Button size="lg">
-                            Get Started Free
+                            Start Investigating
                             <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                     </Link>

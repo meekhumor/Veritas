@@ -7,6 +7,10 @@ import LandingPage from './pages/landing'
 import LoginPage from './pages/login'
 import SignupPage from './pages/signup'
 import DashboardPage from './pages/dashboard'
+import InvestigatePage from './pages/investigate'
+import FeedPage from './pages/feed'
+import ReportDetailPage from './pages/report-detail'
+import ThreatsPage from './pages/threats'
 
 function App() {
     return (
@@ -17,6 +21,10 @@ function App() {
                         <Route path="/" element={<LandingPage />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/signup" element={<SignupPage />} />
+                        <Route path="/investigate" element={<InvestigatePage />} />
+                        <Route path="/feed" element={<FeedPage />} />
+                        <Route path="/feed/:id" element={<ReportDetailPage />} />
+                        <Route path="/threats" element={<ThreatsPage />} />
                         <Route
                             path="/dashboard"
                             element={
