@@ -30,8 +30,8 @@ export function ThreatAlertCard({ threat, className }) {
                                 threat.status === 'active'
                                     ? 'text-red-500'
                                     : threat.status === 'monitoring'
-                                      ? 'text-amber-500'
-                                      : 'text-emerald-500'
+                                        ? 'text-amber-500'
+                                        : 'text-emerald-500'
                             )}
                         />
                         <CardTitle className="text-sm leading-snug">

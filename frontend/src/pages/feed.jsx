@@ -90,21 +90,30 @@ export default function FeedPage() {
 
                 {/* Loading skeletons */}
                 {loading && (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="space-y-3">
                         {Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="space-y-3 rounded-lg border p-6">
-                                <Skeleton className="h-4 w-3/4" />
-                                <Skeleton className="h-3 w-full" />
-                                <Skeleton className="h-3 w-1/2" />
-                                <Skeleton className="h-2 w-full" />
+                            <div key={i} className="flex items-center gap-4 rounded-lg border p-4">
+                                <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                                <div className="flex-1 space-y-2">
+                                    <Skeleton className="h-4 w-3/4" />
+                                    <Skeleton className="h-3 w-full" />
+                                </div>
+                                <Skeleton className="h-6 w-16 shrink-0" />
                             </div>
                         ))}
                     </div>
                 )}
 
+                {/* Results count */}
+                {!loading && items.length > 0 && (
+                    <p className="text-xs text-muted-foreground mb-3">
+                        Showing {items.length} of {total} investigation{total !== 1 ? 's' : ''}
+                    </p>
+                )}
+
                 {/* Feed items */}
                 {!loading && items.length > 0 && (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="flex flex-col gap-4">
                         {items.map((investigation) => (
                             <InvestigationCard
                                 key={investigation.id}

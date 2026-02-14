@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/auth-context'
 import { Navbar } from '../components/navbar'
 import { Button } from '../components/ui/button'
 import {
@@ -62,6 +63,8 @@ export default function LandingPage() {
         },
     ]
 
+    const { user } = useAuth()
+
     return (
         <div className="min-h-screen bg-background">
             <Navbar />
@@ -84,17 +87,35 @@ export default function LandingPage() {
                     sources.
                 </p>
                 <div className="flex items-center justify-center gap-4">
-                    <Link to="/investigate">
-                        <Button size="lg" className="text-base">
-                            Start Investigating
-                            <ArrowRight className="h-4 w-4 ml-2" />
-                        </Button>
-                    </Link>
-                    <Link to="/feed">
-                        <Button variant="outline" size="lg" className="text-base">
-                            Browse Feed
-                        </Button>
-                    </Link>
+                    {user ? (
+                        <>
+                            <Link to="/investigate">
+                                <Button size="lg" className="text-base">
+                                    Start Investigating
+                                    <ArrowRight className="h-4 w-4 ml-2" />
+                                </Button>
+                            </Link>
+                            <Link to="/dashboard">
+                                <Button variant="outline" size="lg" className="text-base">
+                                    Dashboard
+                                </Button>
+                            </Link>
+                        </>
+                    ) : (
+                        <>
+                            <Link to="/signup">
+                                <Button size="lg" className="text-base">
+                                    Get Started
+                                    <ArrowRight className="h-4 w-4 ml-2" />
+                                </Button>
+                            </Link>
+                            <Link to="/feed">
+                                <Button variant="outline" size="lg" className="text-base">
+                                    Browse Feed
+                                </Button>
+                            </Link>
+                        </>
+                    )}
                 </div>
             </section>
 
@@ -179,12 +200,21 @@ export default function LandingPage() {
                         Join Veritas to investigate claims, contribute to the public feed,
                         and receive early warnings about emerging misinformation threats.
                     </p>
-                    <Link to="/investigate">
-                        <Button size="lg">
-                            Start Investigating
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                    </Link>
+                    {user ? (
+                        <Link to="/investigate">
+                            <Button size="lg">
+                                Start Investigating
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </Link>
+                    ) : (
+                        <Link to="/signup">
+                            <Button size="lg">
+                                Sign Up Free
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </Link>
+                    )}
                 </div>
             </section>
 

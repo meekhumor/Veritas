@@ -71,44 +71,48 @@ export const useFeedStore = create((set, get) => ({
         }
     },
 
+    // Track user votes: { [investigationId]: 'upvote' | 'flag' }
+    userVotes: {},
+
     vote: async (id, voteType, userId) => {
+        const existing = get().userVotes[id]
+        // Already voted with same type — do nothing
+        if (existing === voteType) return
+
         try {
-            await api.post(`/feed/${id}/vote`, {
+            const res = await api.post(`/feed/${id}/vote`, {
                 vote_type: voteType,
                 user_id: userId,
             })
 
-            // Optimistic update for feed items
-            set((state) => ({
-                items: state.items.map((item) =>
-                    item.id === id
-                        ? {
-                              ...item,
-                              upvotes:
-                                  voteType === 'upvote'
-                                      ? item.upvotes + 1
-                                      : item.upvotes,
-                              flags:
-                                  voteType === 'flag' ? item.flags + 1 : item.flags,
-                          }
-                        : item
-                ),
-                // Also update currentReport if viewing this one
-                currentReport:
-                    state.currentReport?.id === id
-                        ? {
-                              ...state.currentReport,
-                              upvotes:
-                                  voteType === 'upvote'
-                                      ? state.currentReport.upvotes + 1
-                                      : state.currentReport.upvotes,
-                              flags:
-                                  voteType === 'flag'
-                                      ? state.currentReport.flags + 1
-                                      : state.currentReport.flags,
-                          }
-                        : state.currentReport,
-            }))
+            if (res.status === 'already_voted') return
+
+            // Optimistic update for feed items + track vote
+            set((state) => {
+                const switching = !!existing
+                const patch = (item) => {
+                    if (!item || item.id !== id) return item
+                    const upvotes = switching && existing === 'upvote'
+                        ? Math.max(0, item.upvotes - 1)
+                        : voteType === 'upvote'
+                        ? item.upvotes + 1
+                        : item.upvotes
+                    const flags = switching && existing === 'flag'
+                        ? Math.max(0, item.flags - 1)
+                        : voteType === 'flag'
+                        ? item.flags + 1
+                        : item.flags
+                    return { ...item, upvotes, flags }
+                }
+
+                return {
+                    items: state.items.map((item) =>
+                        item.id === id ? patch(item) : item
+                    ),
+                    currentReport: patch(state.currentReport),
+                    userVotes: { ...state.userVotes, [id]: voteType },
+                }
+            })
         } catch (err) {
             throw err
         }

@@ -13,6 +13,7 @@ from app.core.database import (
     get_investigation,
     get_trending_claims,
     add_vote,
+    get_dashboard_stats,
 )
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,43 @@ async def trending():
     except Exception as e:
         logger.error(f"Trending error: {e}")
         return {"clusters": []}
+
+
+@router.get("/stats")
+async def stats():
+    """Get aggregate dashboard stats."""
+    try:
+        return await get_dashboard_stats()
+    except Exception as e:
+        logger.error(f"Stats error: {e}")
+        return {
+            "total_investigations": 0,
+            "avg_confidence": 0,
+            "active_threats": 0,
+            "verdicts": {},
+        }
+
+
+@router.get("/recent")
+async def recent_activity():
+    """Get 5 most recent investigations (compact)."""
+    try:
+        result = await get_feed(sort="recent", page=1, limit=5)
+        items = [
+            {
+                "id": inv.get("id"),
+                "query": inv.get("query", "")[:100],
+                "verdict": inv.get("verdict"),
+                "confidence": inv.get("confidence"),
+                "category": inv.get("category"),
+                "created_at": inv.get("created_at"),
+            }
+            for inv in result.get("items", [])
+        ]
+        return {"items": items}
+    except Exception as e:
+        logger.error(f"Recent activity error: {e}")
+        return {"items": []}
 
 
 @router.get("/{investigation_id}")

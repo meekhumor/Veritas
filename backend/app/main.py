@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.api import health, investigate, feed, threats
+from app.api import health, investigate, feed, threats, news
 from app.services.early_warning import early_warning_loop
 
 logging.basicConfig(
@@ -64,6 +64,7 @@ app.include_router(health.router)
 app.include_router(investigate.router)
 app.include_router(feed.router)
 app.include_router(threats.router)
+app.include_router(news.router)
 
 
 @app.get("/")

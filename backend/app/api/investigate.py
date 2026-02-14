@@ -11,7 +11,7 @@ from sse_starlette.sse import EventSourceResponse
 from app.models.schemas import InvestigateRequest, InvestigationReport
 from app.agents.pipeline import run_investigation, run_investigation_simple
 from app.services.spam_filter import check_spam
-from app.core.database import save_investigation, save_evidence
+from app.core.database import save_investigation, save_evidence, find_duplicate_investigation
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,17 @@ async def investigate(request: InvestigateRequest):
     is_spam, spam_reason = await check_spam(request.query)
     if is_spam:
         raise HTTPException(status_code=400, detail=f"Query rejected: {spam_reason}")
+
+    # Duplicate check — return existing report if recently investigated
+    existing = await find_duplicate_investigation(request.query)
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "message": "This claim was already investigated recently.",
+                "investigation_id": existing["id"],
+            },
+        )
 
     async def event_generator():
         report: InvestigationReport | None = None

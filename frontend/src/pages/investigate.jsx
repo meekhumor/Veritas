@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Navbar } from '../components/navbar'
 import { Button } from '../components/ui/button'
 import { Textarea } from '../components/ui/textarea'
@@ -11,6 +12,7 @@ import { AgentProgressTracker } from '../components/agent-progress'
 import { EvidenceCard } from '../components/evidence-card'
 import { ImpactChart } from '../components/impact-chart'
 import { CrossReferenceSection } from '../components/cross-reference-section'
+import { TrendingNews } from '../components/trending-news'
 import { useInvestigationStore } from '../stores/investigation-store'
 import {
     Search,
@@ -29,6 +31,7 @@ export default function InvestigatePage() {
         category,
         loading,
         error,
+        duplicateId,
         report,
         steps,
         setQuery,
@@ -142,8 +145,21 @@ export default function InvestigatePage() {
                     <Card className="mb-8 border-destructive/50">
                         <CardContent className="pt-6">
                             <p className="text-sm text-destructive">{error}</p>
+                            {duplicateId && (
+                                <Link
+                                    to={`/feed/${duplicateId}`}
+                                    className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+                                >
+                                    View existing report &rarr;
+                                </Link>
+                            )}
                         </CardContent>
                     </Card>
+                )}
+
+                {/* Trending headlines */}
+                {!loading && !report && (
+                    <TrendingNews className="mb-8" />
                 )}
 
                 {/* Progress tracker (while loading) */}

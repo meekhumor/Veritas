@@ -42,7 +42,15 @@ export async function apiStream(path, body, onEvent, signal) {
 
     if (!res.ok) {
         const err = await res.json().catch(() => ({}))
-        throw new Error(err.detail || `Request failed (${res.status})`)
+        const detail = err.detail
+        // 409 = duplicate — attach investigation_id so UI can link to it
+        if (res.status === 409 && typeof detail === 'object') {
+            const e = new Error(detail.message || 'Duplicate investigation')
+            e.investigationId = detail.investigation_id
+            e.status = 409
+            throw e
+        }
+        throw new Error(typeof detail === 'string' ? detail : `Request failed (${res.status})`)
     }
 
     const reader = res.body.getReader()

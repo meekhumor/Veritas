@@ -56,19 +56,39 @@ function StepIcon({ status }) {
 }
 
 export function AgentProgressTracker({ steps, className }) {
-    // Determine which step is "running" (first non-completed step while loading)
-    const firstPending = steps.findIndex((s) => s.status === 'pending')
-    const hasCompleted = steps.some((s) => s.status === 'completed')
+    // Find the last completed step index
+    let lastCompletedIdx = -1
+    for (let i = steps.length - 1; i >= 0; i--) {
+        if (steps[i].status === 'completed') {
+            lastCompletedIdx = i
+            break
+        }
+    }
 
-    const stepsWithRunning = steps.map((step, i) => ({
-        ...step,
-        displayStatus:
-            step.status === 'pending' && i === firstPending && hasCompleted
-                ? 'running'
-                : step.status,
-    }))
+    const hasCompleted = lastCompletedIdx >= 0
 
-    const completedCount = steps.filter((s) => s.status === 'completed').length
+    // Mark steps: any pending step BEFORE the last completed one is "skipped",
+    // the first pending step AFTER the last completed one is "running"
+    const firstPendingAfter = steps.findIndex(
+        (s, i) => s.status === 'pending' && i > lastCompletedIdx
+    )
+
+    const stepsWithRunning = steps.map((step, i) => {
+        if (step.status !== 'pending') return { ...step, displayStatus: step.status }
+        // Pending step before the last completed → was skipped by the pipeline
+        if (hasCompleted && i < lastCompletedIdx) {
+            return { ...step, displayStatus: 'completed', message: step.message || 'Skipped' }
+        }
+        // First pending after last completed → currently running
+        if (hasCompleted && i === firstPendingAfter) {
+            return { ...step, displayStatus: 'running' }
+        }
+        return { ...step, displayStatus: 'pending' }
+    })
+
+    const completedCount = stepsWithRunning.filter(
+        (s) => s.displayStatus === 'completed'
+    ).length
     const progress = Math.round((completedCount / steps.length) * 100)
 
     return (

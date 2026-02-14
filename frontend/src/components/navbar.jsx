@@ -2,13 +2,17 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/auth-context'
 import { useTheme } from './theme-provider'
 import { Button } from './ui/button'
-import { Moon, Sun, LogOut, Shield, Search, Rss, ShieldAlert } from 'lucide-react'
+import { Moon, Sun, LogOut, Shield, Search, Rss, ShieldAlert, LayoutDashboard } from 'lucide-react'
 import { cn } from '../lib/utils'
 
-const navLinks = [
-    { to: '/investigate', label: 'Investigate', Icon: Search },
+const publicLinks = [
     { to: '/feed', label: 'Feed', Icon: Rss },
     { to: '/threats', label: 'Threats', Icon: ShieldAlert },
+]
+
+const authLinks = [
+    { to: '/investigate', label: 'Investigate', Icon: Search },
+    { to: '/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
 ]
 
 export function Navbar() {
@@ -34,7 +38,22 @@ export function Navbar() {
 
                     {/* Nav links */}
                     <div className="hidden sm:flex items-center gap-1">
-                        {navLinks.map(({ to, label, Icon }) => (
+                        {publicLinks.map(({ to, label, Icon }) => (
+                            <Link key={to} to={to}>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={cn(
+                                        'gap-1.5 text-muted-foreground',
+                                        pathname === to && 'bg-muted text-foreground'
+                                    )}
+                                >
+                                    <Icon className="h-3.5 w-3.5" />
+                                    {label}
+                                </Button>
+                            </Link>
+                        ))}
+                        {user && authLinks.map(({ to, label, Icon }) => (
                             <Link key={to} to={to}>
                                 <Button
                                     variant="ghost"
@@ -94,7 +113,22 @@ export function Navbar() {
 
             {/* Mobile nav */}
             <div className="sm:hidden border-t flex items-center justify-around py-1">
-                {navLinks.map(({ to, label, Icon }) => (
+                {publicLinks.map(({ to, label, Icon }) => (
+                    <Link key={to} to={to}>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                                'flex-col gap-0 h-auto py-1.5 px-3 text-[10px] text-muted-foreground',
+                                pathname === to && 'text-primary'
+                            )}
+                        >
+                            <Icon className="h-4 w-4" />
+                            {label}
+                        </Button>
+                    </Link>
+                ))}
+                {user && authLinks.map(({ to, label, Icon }) => (
                     <Link key={to} to={to}>
                         <Button
                             variant="ghost"

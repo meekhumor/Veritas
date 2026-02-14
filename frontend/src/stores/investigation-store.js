@@ -19,6 +19,7 @@ export const useInvestigationStore = create((set, get) => ({
     category: null,
     loading: false,
     error: null,
+    duplicateId: null,
     report: null,
     steps: PIPELINE_AGENTS.map((agent) => ({
         agent,
@@ -35,6 +36,7 @@ export const useInvestigationStore = create((set, get) => ({
         set({
             loading: false,
             error: null,
+            duplicateId: null,
             report: null,
             steps: PIPELINE_AGENTS.map((agent) => ({
                 agent,
@@ -94,7 +96,11 @@ export const useInvestigationStore = create((set, get) => ({
             )
         } catch (err) {
             if (err.name !== 'AbortError') {
-                set({ error: err.message, loading: false })
+                set({
+                    error: err.message,
+                    loading: false,
+                    duplicateId: err.investigationId || null,
+                })
             }
         }
     },

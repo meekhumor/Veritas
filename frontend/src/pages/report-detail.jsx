@@ -25,9 +25,10 @@ import {
 
 export default function ReportDetailPage() {
     const { id } = useParams()
-    const { currentReport, reportLoading, reportError, fetchReport, vote } =
+    const { currentReport, reportLoading, reportError, fetchReport, vote, userVotes } =
         useFeedStore()
     const { user } = useAuth()
+    const userVote = userVotes[id] || null
 
     useEffect(() => {
         if (id) fetchReport(id)
@@ -137,18 +138,20 @@ export default function ReportDetailPage() {
                                 {/* Vote buttons */}
                                 <div className="flex items-center gap-3 pt-2">
                                     <Button
-                                        variant="outline"
+                                        variant={userVote === 'upvote' ? 'default' : 'outline'}
                                         size="sm"
                                         onClick={() => handleVote('upvote')}
+                                        disabled={userVote === 'upvote'}
                                     >
                                         <ThumbsUp className="h-3.5 w-3.5 mr-1" />
                                         {report.upvotes || 0}
                                     </Button>
                                     <Button
-                                        variant="ghost"
+                                        variant={userVote === 'flag' ? 'destructive' : 'ghost'}
                                         size="sm"
                                         onClick={() => handleVote('flag')}
-                                        className="text-muted-foreground"
+                                        disabled={userVote === 'flag'}
+                                        className={userVote !== 'flag' ? 'text-muted-foreground' : ''}
                                     >
                                         <Flag className="h-3.5 w-3.5 mr-1" />
                                         Flag
