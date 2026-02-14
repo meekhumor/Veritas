@@ -66,7 +66,22 @@ async def investigate_sync(request: InvestigateRequest) -> dict:
     if is_spam:
         raise HTTPException(status_code=400, detail=f"Query rejected: {spam_reason}")
 
-    report = await run_investigation_simple(query=request.query)
+    try:
+        report = await run_investigation_simple(query=request.query)
+    except Exception as e:
+        error_msg = str(e)
+        if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+            raise HTTPException(
+                status_code=429,
+                detail="LLM rate limit exceeded. Please wait a moment and try again.",
+            )
+        if "404" in error_msg or "NOT_FOUND" in error_msg:
+            raise HTTPException(
+                status_code=503,
+                detail=f"LLM model not available: {error_msg[:200]}",
+            )
+        logger.error(f"Investigation pipeline failed: {e}")
+        raise HTTPException(status_code=500, detail="Investigation failed. Please try again.")
 
     # Persist
     try:

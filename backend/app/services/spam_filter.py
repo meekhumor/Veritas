@@ -7,7 +7,7 @@ import logging
 
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from app.core.llm import get_llm
+from app.core.llm import get_llm, rate_limited_invoke
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ async def check_spam(query: str) -> tuple[bool, str]:
             SystemMessage(content=SYSTEM_PROMPT),
             HumanMessage(content=f"Check this query: {query}"),
         ]
-        response = await llm.ainvoke(messages)
+        response = await rate_limited_invoke(llm, messages)
         content = response.content.strip()
 
         if "```json" in content:

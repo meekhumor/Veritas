@@ -16,7 +16,7 @@ from datetime import datetime
 
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from app.core.llm import get_llm
+from app.core.llm import get_llm, rate_limited_invoke
 from app.agents.state import InvestigationState
 from app.models.schemas import ImpactScore, ImpactDimension
 
@@ -69,7 +69,7 @@ async def impact_assessor(state: InvestigationState) -> dict:
         HumanMessage(content=context),
     ]
 
-    response = await llm.ainvoke(messages)
+    response = await rate_limited_invoke(llm, messages)
     content = response.content.strip()
 
     if "```json" in content:
