@@ -1,0 +1,13 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.sw?
+
+# Environment variables
+.env
+.env.local
