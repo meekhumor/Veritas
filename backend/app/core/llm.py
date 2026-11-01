@@ -49,6 +49,25 @@ def get_llm(temperature: float = 0.1, model: str | None = None) -> ChatGoogleGen
     )
 
 
+def extract_text(content) -> str:
+    """Extract plain text string from LLM response.content which can be a str or list of parts."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        texts = []
+        for part in content:
+            if isinstance(part, str):
+                texts.append(part)
+            elif isinstance(part, dict) and "text" in part:
+                texts.append(part["text"])
+            elif hasattr(part, "text"):
+                texts.append(getattr(part, "text"))
+            else:
+                texts.append(str(part))
+        return "".join(texts)
+    return str(content)
+
+
 async def rate_limited_invoke(llm: ChatGoogleGenerativeAI, messages, **kwargs):
     """Invoke the LLM with rate limiting to stay within token quotas."""
     await _rate_limiter.wait()
